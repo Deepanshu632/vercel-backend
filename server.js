@@ -2,7 +2,7 @@ import express from "express";
 const app = express();
 import 'dotenv/config';
 import cors from "cors";
-
+import mongoose from "mongoose";
 app.use(express.json());
 app.use(cors());
 
@@ -31,6 +31,16 @@ app.post("/test" , async(req , res)=>{ //client must send a POST to /test to tri
      console.log(err);
   }
 })
+
+const connectDB = async() => {
+  try{
+     await mongoose.connect(process.env.MONGODB_URI);
+    console.log("connected with database!");
+  }catch(err){
+    console.log(`Failed to connect with database due to  ${err}`);
+  }
+}
 app.listen(8080 , () =>{
   console.log("server is running on port 8080");
+  connectDB();
 })
