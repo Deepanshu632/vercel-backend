@@ -1,8 +1,7 @@
 import express from "express";
 const router = express.Router();
-
 import Thread from "../models/thread.js";
-
+import getopenApiResponse from "../utils/openai.js"
 //test
 router.post("/test" , async(req,res) => {
     try{
@@ -59,6 +58,38 @@ router.delete("/thread/:threadId" , async(req,res) => {
     }catch(err){
       console.log(err);
         res.status(500).json({error : "Failed to Delete the thread"})
+    }
+})
+
+router.post("/chat" , async(req,res) => {
+    const { threadId , message } = req.body;
+    //validating
+    if(!threadId || !message){
+        res.status(404).json({error : "missing required fields"});
+    }
+
+    try{
+       let thread = await Thread.findOne({threadId});
+       if(!thread){ //if thread doesn't exist in database
+        //create new thread in DB
+          thread = new Thread({
+            threadId,
+            title:message,
+            messages :[{role:user , content:message}]
+          });
+       }else{
+         thread.messages.push({role:"user" , content :message});
+       }
+     // getting ai response of message
+       const assistantReply = await getopenApiResponse(message);
+       thread.messages.push({role:"assistant" , content : assistantReply}); //saving assistant reply in databse so that we can represent it in history section
+       thread.updateAt = new Date();
+       await thread.save();
+       res.json({reply :assistantReply});//send it to frontend as we have to show it in frontend also
+       
+    }catch(err){
+        console.log(err);
+        res.status(500).json({error : "Something went wrong"})
     }
 })
 export default router;
