@@ -1,0 +1,64 @@
+import express from "express";
+const router = express.Router();
+
+import Thread from "../models/thread.js";
+
+//test
+router.post("/test" , async(req,res) => {
+    try{
+        const thread = new Thread({
+        threadId :"deepu",
+        title:"testing 3nd  new thread",
+    });
+   const response = await thread.save();
+   res.send(response);
+    }catch(err){
+       console.log(err);
+       res.status(500).json({error : "failed to save in DB"});
+    }
+})
+//for returning all the threads
+router.get("/thread" , async(req ,res) => {
+    try{
+        const threads = await Thread.find({}).sort({updateAt :-1}); //Descending order pf updated at .... most recent data on top
+        res.json(threads);
+    }catch(err){
+        console.log(err);
+        res.status(500).json({error : "Failed to save in DB"})
+    }
+})
+
+//if want to seee particular thread
+router.get("/thread/:threadId" , async(req,res) => {
+    const {threadId} = req.params;
+    try{
+     const thread = await Thread.findOne({threadId});
+     
+     if(!thread){
+        res.status(404).json({error : "faild to load the thread"});
+     }
+     res.json(thread.messages);
+    }catch(err){
+      console.log(err);
+        res.status(500).json({error : "Failed to load the thread"})
+    }
+})
+
+//if we want to delete a particular thread
+router.delete("/thread/:threadId" , async(req,res) => {
+    try{
+    const {threadId} = req.params;
+    const deletedThread = await Thread.findByIdAndDelete(threadId);
+
+    if(!deletedThread){
+        res.status(404).json("thread could not found")
+    }
+
+    res.status(200).json({success : " thread deleted successfully"});
+    console.log(deletedThread);
+    }catch(err){
+      console.log(err);
+        res.status(500).json({error : "Failed to Delete the thread"})
+    }
+})
+export default router;
