@@ -1,12 +1,14 @@
 import express from "express";
 const router = express.Router();
 import Thread from "../models/thread.js";
-import getopenApiResponse from "../utils/openai.js"
+import getopenApiResponse from "../utils/openai.js";
+import User from "../models/user.js";
+
 //test
 router.post("/test" , async(req,res) => {
     try{
         const thread = new Thread({
-        threadId :"deepu",
+        threadId : "deepu",
         title:"testing 3nd  new thread",
     });
    const response = await thread.save();
@@ -15,11 +17,14 @@ router.post("/test" , async(req,res) => {
        console.log(err);
        res.status(500).json({error : "failed to save in DB"});
     }
-})
+});
+
+
 //for returning all the threads
 router.get("/thread" , async(req ,res) => {
+
     try{
-        const threads = await Thread.find({}).sort({updateAt :-1}); //Descending order pf updated at .... most recent data on top
+        const threads = await Thread.find().sort({updateAt :-1}); //Descending order pf updated at .... most recent data on top
         res.json(threads);
     }catch(err){
         console.log(err);
@@ -27,11 +32,13 @@ router.get("/thread" , async(req ,res) => {
     }
 })
 
+
 //if want to seee particular thread
 router.get("/thread/:threadId" , async(req,res) => {
     const {threadId} = req.params;
+
     try{
-     const thread = await Thread.findOne({threadId});
+     let thread = await Thread.findOne({threadId});
      
      if(!thread){
         res.status(404).json({error : "faild to load the thread"});
@@ -43,14 +50,16 @@ router.get("/thread/:threadId" , async(req,res) => {
     }
 })
 
+
 //if we want to delete a particular thread
 router.delete("/thread/:threadId" , async(req,res) => {
-    try{
     const {threadId} = req.params;
-    const deletedThread = await Thread.findByIdAndDelete(threadId);
+    
+    try{
+    const deletedThread = await Thread.findOneAndDelete({threadId });
 
     if(!deletedThread){
-        res.status(404).json("thread could not found")
+        res.status(404).json({error : "thread could not found"})
     }
 
     res.status(200).json({success : " thread deleted successfully"});
@@ -74,17 +83,21 @@ router.post("/chat" , async(req,res) => {
         //create new thread in DB
           thread = new Thread({
             threadId,
+            userId: req.user?._id,   
             title:message,
-            messages :[{role:user , content:message}]
+            messages :[{role:"user" , content:message}]
           });
        }else{
          thread.messages.push({role:"user" , content :message});
        }
+       
      // getting ai response of message
        const assistantReply = await getopenApiResponse(message);
        thread.messages.push({role:"assistant" , content : assistantReply}); //saving assistant reply in databse so that we can represent it in history section
        thread.updateAt = new Date();
        await thread.save();
+
+      
        res.json({reply :assistantReply});//send it to frontend as we have to show it in frontend also
        
     }catch(err){
@@ -92,4 +105,6 @@ router.post("/chat" , async(req,res) => {
         res.status(500).json({error : "Something went wrong"})
     }
 })
+
+
 export default router;

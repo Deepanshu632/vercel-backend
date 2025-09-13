@@ -22,6 +22,7 @@ const ThreadSchema = new mongoose.Schema({
      required : true,
      unique: true
   },
+  
   title: {
     type:String,
     default : "New Chat"
@@ -36,5 +37,6 @@ const ThreadSchema = new mongoose.Schema({
      default:Date.now
   }
 });
+
 
 export default mongoose.model("thread" , ThreadSchema);//thread is our collection name
