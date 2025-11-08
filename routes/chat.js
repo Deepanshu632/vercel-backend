@@ -4,6 +4,7 @@ import Thread from "../models/thread.js";
 import getopenApiResponse from "../utils/openai.js";
 import User from "../models/user.js";
 
+
 //test
 router.post("/test" , async(req,res) => {
     try{
@@ -20,6 +21,7 @@ router.post("/test" , async(req,res) => {
 });
 
 
+
 //for returning all the threads
 router.get("/thread" , async(req ,res) => {
 
@@ -33,7 +35,7 @@ router.get("/thread" , async(req ,res) => {
 })
 
 
-//if want to seee particular thread
+//if want to see particular thread
 router.get("/thread/:threadId" , async(req,res) => {
     const {threadId} = req.params;
 

@@ -16,7 +16,7 @@ UserSchema.plugin(passportLocalMongoose);//is what makes your User model "passpo
 // username/password fields, hashing, salting, and authentication methods.
 
 
-export default mongoose.model("user" , UserSchema);
+export default mongoose.model("User" , UserSchema);
 
 
 

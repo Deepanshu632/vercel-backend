@@ -12,10 +12,12 @@ import authRoutes from "./routes/auth.js"
 import MongoStore from "connect-mongo";
 
 
+
 import session from "express-session"
 
 import passport from "passport"
 import LocalStrategy from "passport-local"
+
 
 
 
@@ -24,6 +26,7 @@ app.use(cors({
   origin: "http://localhost:5173", // Your React app URL
   credentials: true                // Allow cookies over CORS
 }));
+
 
 
 app.use(express.json());   // Middleware for parsing JSON
@@ -49,6 +52,7 @@ cookie: {
 }
 
 
+
 app.use(session(sessionOption));
 
 app.use(passport.initialize());
@@ -58,6 +62,9 @@ passport.use(new LocalStrategy(User.authenticate()));  //authenticate -> user ko
 
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
+
+
+
 
 
 

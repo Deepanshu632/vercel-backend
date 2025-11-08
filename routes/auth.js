@@ -1,6 +1,7 @@
 import express from "express";
 const router = express.Router();
 
+
 import passport from "passport";
 import User from "../models/user.js";
 
@@ -15,18 +16,19 @@ router.post("/register" , async(req,res) => {
     })
     await User.register(user , password); // passport-local-mongoose -> generates the salt , hashes the given passport with salt , Stores hash and salt in the database along with the other fields (email, username) password itself is never stores. , saves the document
     res.status(201).json({message : "user registered successfully"});
-    
     } catch (error) {
         console.log(error);
         res.status(500).json({error : "registration failed"});
     }
 })
 
+85703
 
 //login
 router.post("/login" , passport.authenticate("local") , (req,res) => {
     res.json({message: "login successful" , user : req.user});
 });
+
 
 
 //logout route
